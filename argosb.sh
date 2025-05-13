@@ -1,20 +1,20 @@
 #!/bin/bash
 export LANG=en_US.UTF-8
 export nix=${nix:-''}
-[ -n "$nix" ] && sys='主流VPS-' || sys='容器NIX-'
+[ -z "$nix" ] && sys='主流VPS-' || sys='容器NIX-'
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" 
 echo "甬哥Github项目  ：github.com/yonggekkk"
 echo "甬哥Blogger博客 ：ygkkk.blogspot.com"
 echo "甬哥YouTube频道 ：www.youtube.com/@ygkkk"
 echo "${sys}ArgoSB真一键无交互脚本"
-echo "当前版本：25.5.9 测试beta6版"
+echo "当前版本：25.5.10 测试beta7版"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 export UUID=${uuid:-''}
 export port_vm_ws=${vmpt:-''}
 export ARGO_DOMAIN=${agn:-''}   
 export ARGO_AUTH=${agk:-''} 
 if [ -z "$nix" ]; then 
-[[ $EUID -ne 0 ]] && echo "请以root模式运行脚本" && exit
+[[ $EUID -ne 0 ]] && echo "当前为主流VPS专用脚本模式，必须以root模式运行。请在脚本前加上 nix=y 切换为容器NIX模式运行" && exit
 if [[ -f /etc/redhat-release ]]; then
 release="Centos"
 elif cat /etc/issue | grep -q -E -i "alpine"; then
@@ -101,7 +101,7 @@ echo "CPU架构：$cpu"
 echo "ArgoSB脚本未安装，开始安装…………" && sleep 3
 echo
 else
-echo "ArgoSB脚本未启动，可能与其他脚本冲突了，请先将脚本卸载(agsb del)，再重新安装ArgoSB脚本"
+echo "ArgoSB脚本未启动，可能与其他sing-box或者argo脚本冲突了，请先将脚本卸载(agsb del)，再重新安装ArgoSB脚本"
 exit
 fi
 warpcheck(){
@@ -311,6 +311,8 @@ mkdir -p nixag
 del(){
 kill -15 $(cat nixag/sbargopid.log 2>/dev/null) >/dev/null 2>&1
 kill -15 $(cat nixag/sbpid.log 2>/dev/null) >/dev/null 2>&1
+sed -i '/yonggekkk/d' ~/.bashrc 
+source ~/.bashrc
 rm -rf nixag
 }
 if [[ "$1" == "del" ]]; then
@@ -327,7 +329,7 @@ echo "VPS系统：$op"
 echo "CPU架构：$cpu"
 echo "ArgoSB脚本未安装，开始安装…………" && sleep 3
 else
-echo "ArgoSB脚本未启动，可能与其他脚本冲突了，请先将脚本卸载，再重新安装ArgoSB脚本"
+echo "ArgoSB脚本未启动，可能与其他sing-box或者argo脚本冲突了，请先将脚本卸载，再重新安装ArgoSB脚本"
 exit
 fi
 if [ ! -e nixag/sing-box ]; then
@@ -355,6 +357,10 @@ echo "当前vmess主协议端口：$port_vm_ws"
 echo
 echo "当前uuid密码：$UUID"
 echo
+[ -f ~/.bashrc ] || touch ~/.bashrc
+sed -i '/yonggekkk/d' ~/.bashrc
+echo "export nix=y uuid=${uuid} vmpt=${port_vm_ws} agn=${ARGO_DOMAIN} agk=${ARGO_AUTH} && bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosb/main/argosb.sh)" >> ~/.bashrc
+source ~/.bashrc
 sleep 2
 
 cat > nixag/sb.json <<EOF
